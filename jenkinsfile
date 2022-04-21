@@ -1,0 +1,32 @@
+node {  
+    def mvnHome = tool name: 'Maven home', type: 'maven'
+    stage('SCM-Checkout') { 
+        git branch: 'main', credentialsId: 'Git-Credentials', url: 'https://github.com/vikas99341/tomcat-demo.git' 
+    }
+    stage('mvn-clean') { 
+        sh "${mvnHome}/bin/mvn clean"
+    }
+    stage('mvn-compile') { 
+        sh "${mvnHome}/bin/mvn compile"
+    }
+    stage('mvn-test') { 
+        sh "${mvnHome}/bin/mvn test"
+    }
+    stage('mvn-package') { 
+        sh "${mvnHome}/bin/mvn package"
+    }
+    stage('Sonar-Analysis') { 
+         withSonarQubeEnv('sonar-server') {
+            sh '${mvnHome}/bin/mvn sonar:sonar'
+        }
+    }
+    stage("Quality Gate check"){
+          timeout(time: 1, unit: 'HOURS') {
+              def qg = waitForQualityGate()
+              if (qg.status != 'OK') {
+                  error "Pipeline aborted due to quality gate failure: ${qg.st
+              }
+          }
+      } 
+	}
+}
