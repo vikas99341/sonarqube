@@ -1,5 +1,5 @@
 node {  
-    def mvnHome = tool name: 'Maven home', type: 'maven'
+    def mvnHome = tool name: 'maven_path', type: 'maven'
     stage('SCM-Checkout') { 
         git branch: 'main', credentialsId: 'Git-Credentials', url: 'https://github.com/vikas99341/tomcat-demo.git' 
     }
